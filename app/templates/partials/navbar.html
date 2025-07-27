@@ -1,0 +1,18 @@
+<nav class="bg-lime-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <a href="/dashboard" class="text-gray-800 text-lg font-semibold flex items-center ">Expense Tracker</a>
+            </div>
+            <div class="flex items-center">
+                {% if current_user.is_authenticated %}
+                    <a href="/expense-list" class="text-gray-800 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Expenses</a>
+                    <a href="/logout" class="text-gray-800 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Logout</a>
+                {% else %}
+                    <a href="/login" class="text-gray-800 px-3 py-2 rounded-md text-sm font-medium hover:bg-lime-700">Login</a>
+                    <a href="/register" class="text-gray-800 px-3 py-2 rounded-md text-sm font-medium hover:bg-lime-700">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

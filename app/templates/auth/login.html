@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Login - Expense Tracker{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto py-6 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-gray-900">Log In</h1>
+    <form method="POST" class="mt-6 bg-white shadow rounded-lg p-6">
+        {{ form.hidden_tag() }}
+        <div class="mb-4">
+            <label for="{{ form.email.id }}" class="block text-sm font-medium text-gray-700">{{ form.email.label }}</label>
+            {{ form.email(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm") }}
+            {% for error in form.email.errors %}
+                <span class="text-red-600 text-sm">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="mb-4">
+            <label for="{{ form.password.id }}" class="block text-sm font-medium text-gray-700">{{ form.password.label }}</label>
+            {{ form.password(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm") }}
+            {% for error in form.password.errors %}
+                <span class="text-red-600 text-sm">{{ error }}</span>
+            {% endfor %}
+        </div>
+        {{ form.submit(class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700") }}
+    </form>
+    <p class="mt-4 text-sm text-gray-600">
+        Don't have an account? <a href="/register" class="text-blue-600 hover:underline">Register</a>
+    </p>
+</div>
+{% endblock %}

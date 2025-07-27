@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Expense Tracker{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gray-800 flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
+    <div class="text-center">
+        <h1 class="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
+            Welcome to <span class="text-lime-400">Expense Tracker</span>
+        </h1>
+        <p class="mt-3 max-w-md mx-auto text-base text-white sm:text-lg md:mt-5 md:text-xl">
+            Take control of your finances with Expense Tracker! Easily log, categorize, and analyze your expenses to stay on top of your budget.
+        </p>
+        <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+            <div class="rounded-md shadow">
+                <a href="/login" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-lime-400 hover:bg-lime-500 md:py-4 md:text-lg md:px-10">
+                    Log In
+                </a>
+            </div>
+            <div class="mt-3 sm:mt-0 sm:ml-3">
+                <a href="/register" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-lime-400 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                    Register
+                </a>
+            </div>
+        </div>
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-lime-400">Features</h2>
+            <ul class="mt-4 max-w-md mx-auto text-left text-white space-y-2">
+                <li>📊 Track expenses by category (e.g., Food, Travel, Utilities).</li>
+                <li>📅 Log expenses with dates and descriptions.</li>
+                <li>📈 Visualize spending with insightful charts.</li>
+                <li>🔒 Secure user accounts with authentication.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
