@@ -1,28 +1,33 @@
 {% extends "base.html" %}
 {% block title %}Login - Expense Tracker{% endblock %}
 {% block content %}
-<div class="max-w-md mx-auto py-6 sm:px-6 lg:px-8">
-    <h1 class="text-3xl font-bold text-gray-900">Log In</h1>
-    <form method="POST" class="mt-6 bg-white shadow rounded-lg p-6">
-        {{ form.hidden_tag() }}
-        <div class="mb-4">
-            <label for="{{ form.email.id }}" class="block text-sm font-medium text-gray-700">{{ form.email.label }}</label>
-            {{ form.email(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm") }}
-            {% for error in form.email.errors %}
-                <span class="text-red-600 text-sm">{{ error }}</span>
-            {% endfor %}
+<div class="min-h-screen bg-gray-800 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="max-w-xl mx-auto">
+        <div class="text-center">
+            <h1 class="text-5xl font-bold text-white">Log In</h1>
+            <p class="mt-4 text-lg text-gray-300">Welcome back to Expense Tracker</p>
         </div>
-        <div class="mb-4">
-            <label for="{{ form.password.id }}" class="block text-sm font-medium text-gray-700">{{ form.password.label }}</label>
-            {{ form.password(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm") }}
-            {% for error in form.password.errors %}
-                <span class="text-red-600 text-sm">{{ error }}</span>
-            {% endfor %}
-        </div>
-        {{ form.submit(class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700") }}
-    </form>
-    <p class="mt-4 text-sm text-gray-600">
-        Don't have an account? <a href="/register" class="text-blue-600 hover:underline">Register</a>
-    </p>
+        <form method="POST" class="mt-12 bg-gray-700 shadow-lg rounded-lg p-12">
+            {{ form.hidden_tag() }}
+            <div class="mb-8">
+                <label for="{{ form.email.id }}" class="block text-lg font-medium text-gray-200 mb-2">{{ form.email.label }}</label>
+                {{ form.email(class="block w-full bg-gray-600 border-gray-500 text-white text-lg placeholder-gray-400 rounded-md shadow-sm focus:border-lime-400 focus:ring-lime-400 py-4 px-4") }}
+                {% for error in form.email.errors %}
+                    <span class="text-red-400 text-base mt-1 block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="mb-8">
+                <label for="{{ form.password.id }}" class="block text-lg font-medium text-gray-200 mb-2">{{ form.password.label }}</label>
+                {{ form.password(class="block w-full bg-gray-600 border-gray-500 text-white text-lg placeholder-gray-400 rounded-md shadow-sm focus:border-lime-400 focus:ring-lime-400 py-4 px-4") }}
+                {% for error in form.password.errors %}
+                    <span class="text-red-400 text-base mt-1 block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="w-full bg-lime-400 text-gray-900 py-4 px-6 rounded-md text-lg font-semibold hover:bg-lime-500 transition duration-200") }}
+        </form>
+        <p class="mt-8 text-center text-base text-gray-300">
+            Don't have an account? <a href="{{url_for('auth.register')}}" class="text-lime-400 hover:text-lime-300 font-medium text-lg">Register</a>
+        </p>
+    </div>
 </div>
 {% endblock %}
