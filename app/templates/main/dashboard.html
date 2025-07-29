@@ -1,4 +1,4 @@
-<!-- {% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Dashboard - Expense Tracker{% endblock %}
 {% block content %}
 <div class="min-h-screen bg-gray-800 py-12 sm:px-6 lg:px-8">
@@ -9,7 +9,7 @@
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
+            <!-- Total Expenses Card -->
             <div class="bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
                 <div class="flex items-center justify-between">
                     <div>
@@ -24,136 +24,5 @@
                 </div>
             </div>
 
-
-            <div class="bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
-                <h2 class="text-2xl font-semibold text-gray-200 mb-4">Quick Stats</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-300">Categories</span>
-                        <span class="text-lime-400 font-semibold">{{ expenses_by_category|length }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-300">This Month</span>
-                        <span class="text-lime-400 font-semibold">${{ total_expenses|round(2) }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="mt-12 bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-semibold text-gray-200">Expenses by Category</h2>
-                <div class="bg-lime-400 bg-opacity-20 p-2 rounded-lg">
-                    <svg class="w-6 h-6 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="bg-gray-800 rounded-lg p-4">
-                <canvas id="expenseChart" class="w-full h-96"></canvas>
-            </div>
-        </div>
-
-
-        <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ url_for('main.add_expense') }}" class="bg-lime-400 text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-lime-500 transition duration-200 text-center">
-                Add New Expense
-            </a>
-            <a href="{{ url_for('main.expenses') }}" class="bg-gray-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-500 transition duration-200 text-center border border-gray-500">
-                View All Expenses
-            </a>
-        </div>
-    </div>
-</div>
-
-<script>
-    const ctx = document.getElementById('expenseChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [{% for category, _ in expenses_by_category %}'{{ category }}',{% endfor %}],
-            datasets: [{
-                label: 'Expenses by Category ($)',
-                data: [{% for _, total in expenses_by_category %}{{ total }}{% if not loop.last %},{% endif %}{% endfor %}],
-                backgroundColor: [
-                    'rgba(163, 230, 53, 0.8)',  // lime-400 with opacity
-                    'rgba(34, 197, 94, 0.8)',   // green-500 with opacity
-                    'rgba(59, 130, 246, 0.8)',  // blue-500 with opacity
-                    'rgba(236, 72, 153, 0.8)',  // pink-500 with opacity
-                    'rgba(245, 158, 11, 0.8)',  // amber-500 with opacity
-                    'rgba(139, 92, 246, 0.8)'   // violet-500 with opacity
-                ],
-                borderColor: [
-                    'rgb(163, 230, 53)',   // lime-400
-                    'rgb(34, 197, 94)',    // green-500
-                    'rgb(59, 130, 246)',   // blue-500
-                    'rgb(236, 72, 153)',   // pink-500
-                    'rgb(245, 158, 11)',   // amber-500
-                    'rgb(139, 92, 246)'    // violet-500
-                ],
-                borderWidth: 2,
-                borderRadius: 8,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#D1D5DB', // gray-300
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { 
-                        display: true, 
-                        text: 'Amount ($)',
-                        color: '#D1D5DB', // gray-300
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    },
-                    ticks: {
-                        color: '#9CA3AF', // gray-400
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(75, 85, 99, 0.3)' // gray-600 with opacity
-                    }
-                },
-                x: {
-                    title: { 
-                        display: true, 
-                        text: 'Category',
-                        color: '#D1D5DB', // gray-300
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    },
-                    ticks: {
-                        color: '#9CA3AF', // gray-400
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(75, 85, 99, 0.3)' // gray-600 with opacity
-                    }
-                }
-            }
-        }
-    });
-</script>
-{% endblock %} -->
+          
+{% endblock %}

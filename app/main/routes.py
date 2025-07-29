@@ -3,6 +3,8 @@ from flask_login import login_required,current_user
 from ..extensions import db
 from . import main_bp
 from sqlalchemy.sql import func
+from ..models import Expense
+from ..models import Category
 
 
 
@@ -10,7 +12,9 @@ from sqlalchemy.sql import func
 def home():
     return render_template('main/landing.html')
 
-@main_bp.route('/dashboard')
+@main_bp.route('/dashboard') 
 @login_required
 def dashboard():
-    return render_template('main/dashboard.html')   
+    total_expenses=db.session.query(func.sum(Expense.amount)).filter_by(user_id=current_user.id).scalar()or 0
+
+    return render_template('main/dashboard.html',total_expenses=total_expenses)   

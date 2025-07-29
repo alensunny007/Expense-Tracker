@@ -10,7 +10,7 @@ def login():
     form=LoginForm()
     if form.validate_on_submit():
         user=User.query.filter_by(email=form.email.data).first()
-        if user and user.check_password_hash(form.password.data):
+        if user and user.check_password(form.password.data):
             login_user(user)
             flash('Logged in successfully!',category='success')
             return redirect(url_for('main.dashboard'))
@@ -28,3 +28,10 @@ def register():
         flash('Registration successful! Pleas log in',category='success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html',form=form)
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully',category='success')
+    return redirect(url_for('auth.login'))
