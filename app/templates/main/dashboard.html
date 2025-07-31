@@ -14,7 +14,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-2xl font-semibold text-gray-200 mb-2">Total Expenses</h2>
-                        <p class="text-4xl font-bold text-lime-400">${{ total_expenses|round(2) }}</p>
+                        <p class="text-4xl font-bold text-lime-400">₹{{ total_expenses|round(2) }}</p>
                     </div>
                     <div class="bg-lime-400 bg-opacity-20 p-4 rounded-full">
                         <svg class="w-8 h-8 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,6 +23,45 @@
                     </div>
                 </div>
             </div>
+                        <!-- Quick Stats Card -->
+            <div class="bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
+                <h2 class="text-2xl font-semibold text-gray-200 mb-4">Quick Stats</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300">Categories</span>
+                        <span class="text-lime-400 font-semibold">{{ expenses_by_category|length }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300">This Month</span>
+                        <span class="text-lime-400 font-semibold">₹{{ total_expenses|round(2) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-12 bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-semibold text-gray-200">Expenses by Category</h2>
+                <div class="bg-lime-400 bg-opacity-20 p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-4">
+                <canvas id="expenseChart" class="w-full h-96"></canvas>
+            </div>
+        </div>
+             <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/expense/new"class="bg-lime-400 text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-lime-500 transition duration-200 text-center">
+                Add New Expense
+            </a>
+            <a href="{{url_for('main.expense_list')}}" class="bg-gray-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-500 transition duration-200 text-center border border-gray-500">
+                View All Expenses
+            </a>
+        </div>
+    </div>
+</div>
+
 
           
 {% endblock %}

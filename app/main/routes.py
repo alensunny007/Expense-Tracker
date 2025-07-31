@@ -16,5 +16,17 @@ def home():
 @login_required
 def dashboard():
     total_expenses=db.session.query(func.sum(Expense.amount)).filter_by(user_id=current_user.id).scalar()or 0
+    expenses_by_category=db.session.query(Category.name,func.sum(Expense.amount).label('total')).join(Expense).filter(
+        Expense.user_id==current_user.id).group_by(Category.name).all()
+    return render_template('main/dashboard.html',total_expenses=total_expenses,expenses_by_category=expenses_by_category)   
 
-    return render_template('main/dashboard.html',total_expenses=total_expenses)   
+@main_bp.route('/expenses')
+@login_required
+def expense_list():
+    expenses=Expense.query.filter_by(user_id=current_user.id).all()
+    return render_template('main/expense_list.html',expenses=expenses)
+
+@main_bp.route('/expense/new')
+@login_required
+def expense_create():
+    return render_template('main/expense_create.html')

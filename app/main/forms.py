@@ -10,4 +10,6 @@ class ExpenseForm(FlaskForm):
     category_id=SelectField('Category',coerce=int,validators=[DataRequired()])
     submit=SubmitField('Save Expense')
 
-    
+    def __init__(self,*args,**kwargs):
+        super(ExpenseForm,self).__init__(*args,**kwargs)
+        self.category_id.choices=[(c.id,c.name)for c in Category.query.all()]
