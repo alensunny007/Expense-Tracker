@@ -4,7 +4,7 @@
 <div class="min-h-screen bg-gray-800 py-12 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
         <h1 class="text-5xl font-bold text-white">Your Expenses</h1>
-        <a href="/expense/new" class="mt-6 inline-block bg-lime-400 text-gray-900 py-3 px-6 rounded-lg
+        <a href="{{url_for('main.expense_create')}}" class="mt-6 inline-block bg-lime-400 text-gray-900 py-3 px-6 rounded-lg
          text-lg font-semibold hover:bg-lime-500 transition duration-200">Add Expense</a>
         <div class="mt-8 bg-gray-700 shadow-lg rounded-lg p-8 border border-gray-600">
             <table class="min-w-full divide-y divide-gray-600">

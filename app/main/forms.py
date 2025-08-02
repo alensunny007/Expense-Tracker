@@ -12,4 +12,4 @@ class ExpenseForm(FlaskForm):
 
     def __init__(self,*args,**kwargs):
         super(ExpenseForm,self).__init__(*args,**kwargs)
-        self.category_id.choices=[(c.id,c.name)for c in Category.query.all()]
+        self.category_id.choices=[(c.id,c.name)for c in Category.query.all()] #self.category_id.choices will be [(1,'Food'),(2,'Transportation')] like this...

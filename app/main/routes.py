@@ -5,12 +5,14 @@ from . import main_bp
 from sqlalchemy.sql import func
 from ..models import Expense
 from ..models import Category
+from .forms import ExpenseForm
 
 
 
 @main_bp.route('/')
 def home():
     return render_template('main/landing.html')
+
 
 @main_bp.route('/dashboard') 
 @login_required
@@ -26,7 +28,15 @@ def expense_list():
     expenses=Expense.query.filter_by(user_id=current_user.id).all()
     return render_template('main/expense_list.html',expenses=expenses)
 
-@main_bp.route('/expense/new')
+@main_bp.route('/expense/new',methods=['GET','POST'])
 @login_required
 def expense_create():
-    return render_template('main/expense_create.html')
+    form =ExpenseForm()
+    if form.validate_on_submit():
+        expense=Expense(amount=form.amount.data,description=form.description.data,date=form.date.data,
+                user_id=current_user.id,category_id=form.category_id.data)
+        db.session.add(expense)
+        db.session.commit()
+        flash("Expense added successfully!",category='success')
+        return redirect(url_for('main.expense_list'))
+    return render_template('main/expense_create.html',form=form)
