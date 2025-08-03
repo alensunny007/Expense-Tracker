@@ -13,14 +13,33 @@ from .forms import ExpenseForm
 def home():
     return render_template('main/landing.html')
 
-
-@main_bp.route('/dashboard') 
+@main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    total_expenses=db.session.query(func.sum(Expense.amount)).filter_by(user_id=current_user.id).scalar()or 0
-    expenses_by_category=db.session.query(Category.name,func.sum(Expense.amount).label('total')).join(Expense).filter(
+    return render_template('main/dashboard.html')
+
+@main_bp.route('/api/dashboard-data',methods=['GET','POST']) 
+@login_required
+def dashboard_data():
+    try:
+        total_expenses=db.session.query(func.sum(Expense.amount)).filter_by(user_id=current_user.id).scalar()or 0
+        query_res=db.session.query(Category.name,func.sum(Expense.amount).label('total')).join(Expense).filter(
         Expense.user_id==current_user.id).group_by(Category.name).all()
-    return render_template('main/dashboard.html',total_expenses=total_expenses,expenses_by_category=expenses_by_category)   
+        expenses_by_category=[(row.name,float(row.total))for row in query_res]
+        return jsonify({
+            'success':True,
+            'total_expenses':float(total_expenses),
+            'expenses_by_category':expenses_by_category,
+            'category_count':len(expenses_by_category)
+        })
+    except Exception as e:
+        return jsonify({
+            'success':False,
+            'error':str(e),
+            'total_expenses':0,
+            'expenses_by_category':[],
+            'category_count':0
+        }),500
 
 @main_bp.route('/expenses')
 @login_required
