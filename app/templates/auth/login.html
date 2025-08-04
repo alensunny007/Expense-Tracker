@@ -25,6 +25,11 @@
             </div>
             {{ form.submit(class="w-full bg-lime-400 text-gray-900 py-4 px-6 rounded-md text-lg font-semibold hover:bg-lime-500 transition duration-200") }}
         </form>
+        <div class="text-right">
+            <a href="{{url_for('auth.forgot_password')}}"class="text-sm text-lime-400 hover:text-blue-800 transition-colors duration-300">
+                Forgot password?
+            </a>
+        </div>
         <p class="mt-8 text-center text-base text-gray-300">
             Don't have an account? <a href="{{url_for('auth.register')}}" class="text-lime-400 hover:text-lime-300 font-medium text-lg">Register</a>
         </p>
