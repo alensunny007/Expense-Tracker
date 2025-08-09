@@ -40,6 +40,27 @@
                 </div>
             </div>
         </div>
+        <div class="bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-200 mb-2">Recurring Expenses</h2>
+            <p class="text-4xl font-bold text-lime-400">{{ recurring_count }}</p>
+            <p class="text-gray-300 mt-1">Active recurring items</p>
+            {% if due_count > 0 %}
+            <div class="mt-3">
+                <span class="bg-yellow-500 text-gray-900 text-sm font-bold px-3 py-1 rounded-full">
+                    {{ due_count }} Due
+                </span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="bg-lime-400 bg-opacity-20 p-4 rounded-full">
+            <svg class="w-8 h-8 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+        </div>
+    </div>
+</div>
         
         <!-- Chart Section -->
         <div class="mt-12 bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
@@ -57,15 +78,25 @@
         </div>
         
         <!-- Action Buttons -->
-        <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{url_for('main.expense_create')}}" class="bg-lime-400 text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-lime-500 transition duration-200 text-center">
-                Add New Expense
-            </a>
-            <a href="{{url_for('main.expense_list')}}" class="bg-gray-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-500 transition duration-200 text-center border border-gray-500">
-                View All Expenses
-            </a>
-        </div>
-    </div>
+        <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <a href="/" class="bg-lime-400 text-gray-900 px-6 py-4 rounded-lg text-lg font-semibold hover:bg-lime-500 transition duration-200 text-center">
+        Add New Expense
+    </a>
+    <a href="=/" class="bg-gray-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-gray-500 transition duration-200 text-center border border-gray-500">
+        View All Expenses
+    </a>
+    <a href="=/" class="bg-purple-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-purple-500 transition duration-200 text-center">
+        Recurring Expenses
+    </a>
+    {% if due_count > 0 %}
+    <a href="=/" class="bg-yellow-500 text-gray-900 px-6 py-4 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition duration-200 text-center">
+        Process Due ({{ due_count }})
+    </a>
+    {% else %}
+    <a href="/" class="bg-blue-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition duration-200 text-center">
+        Add Recurring
+    </a>
+    {% endif %}
 </div>
 
 <!-- Load Chart.js first -->

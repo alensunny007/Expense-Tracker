@@ -6,6 +6,7 @@ from sqlalchemy.sql import func
 from ..models import Expense
 from ..models import Category
 from .forms import ExpenseForm
+from ..models import RecurringExpense
 
 
 
@@ -16,7 +17,10 @@ def home():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('main/dashboard.html')
+    recurring_expenses = RecurringExpense.query.filter_by(user_id=current_user.id, is_active=True).all()
+    recurring_count = len(recurring_expenses)
+    due_count = sum(1 for re in recurring_expenses if re.is_due())   
+    return render_template('main/dashboard.html',recurring_count=recurring_count,due_count=due_count)
 
 @main_bp.route('/api/dashboard-data',methods=['GET','POST']) 
 @login_required
@@ -59,3 +63,4 @@ def expense_create():
         flash("Expense added successfully!",category='success')
         return redirect(url_for('main.expense_list'))
     return render_template('main/expense_create.html',form=form)
+
