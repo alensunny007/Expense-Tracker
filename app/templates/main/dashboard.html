@@ -40,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600">
+        <div class="bg-gray-700 shadow-lg rounded-xl p-8 border border-gray-600 mt-8">
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-2xl font-semibold text-gray-200 mb-2">Recurring Expenses</h2>
@@ -79,13 +79,13 @@
         
         <!-- Action Buttons -->
         <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <a href="/" class="bg-lime-400 text-gray-900 px-6 py-4 rounded-lg text-lg font-semibold hover:bg-lime-500 transition duration-200 text-center">
+    <a href="{{url_for('main.expense_create')}}" class="bg-lime-400 text-gray-900 px-6 py-4 rounded-lg text-lg font-semibold hover:bg-lime-500 transition duration-200 text-center">
         Add New Expense
     </a>
-    <a href="=/" class="bg-gray-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-gray-500 transition duration-200 text-center border border-gray-500">
+    <a href="{{url_for('main.expense_list')}}" class="bg-gray-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-gray-500 transition duration-200 text-center border border-gray-500">
         View All Expenses
     </a>
-    <a href="=/" class="bg-purple-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-purple-500 transition duration-200 text-center">
+    <a href="{{ url_for('main.recurring_expenses')}}" class="bg-purple-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-purple-500 transition duration-200 text-center">
         Recurring Expenses
     </a>
     {% if due_count > 0 %}
@@ -93,7 +93,7 @@
         Process Due ({{ due_count }})
     </a>
     {% else %}
-    <a href="/" class="bg-blue-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition duration-200 text-center">
+    <a href="{{url_for('main.add_recurring_expense')}}" class="bg-blue-600 text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-blue-500 transition duration-200 text-center">
         Add Recurring
     </a>
     {% endif %}

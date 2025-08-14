@@ -26,4 +26,7 @@ class RecurringExpenseForm(FlaskForm):
     end_date=DateField('End Date(Optional)',validators=[Optional()])
     submit=SubmitField('Creating Recurring Expense')
     
+    def __init__(self,*args,**kwargs):
+        super(RecurringExpenseForm,self).__init__(*args,**kwargs)
+        self.category_id.choices=[(c.id,c.name)for c in Category.query.all()]
     

@@ -5,7 +5,7 @@ from . import main_bp
 from sqlalchemy.sql import func
 from ..models import Expense
 from ..models import Category
-from .forms import ExpenseForm
+from .forms import ExpenseForm,RecurringExpenseForm
 from ..models import RecurringExpense
 
 
@@ -19,7 +19,8 @@ def home():
 def dashboard():
     recurring_expenses = RecurringExpense.query.filter_by(user_id=current_user.id, is_active=True).all()
     recurring_count = len(recurring_expenses)
-    due_count = sum(1 for re in recurring_expenses if re.is_due())   
+    due_count = sum(1 for re in recurring_expenses if re.is_due())
+    
     return render_template('main/dashboard.html',recurring_count=recurring_count,due_count=due_count)
 
 @main_bp.route('/api/dashboard-data',methods=['GET','POST']) 
@@ -63,4 +64,66 @@ def expense_create():
         flash("Expense added successfully!",category='success')
         return redirect(url_for('main.expense_list'))
     return render_template('main/expense_create.html',form=form)
+
+@main_bp.route('/recurring-expenses')
+@login_required
+def recurring_expenses():
+    recurring_expenses = RecurringExpense.query.filter_by(user_id=current_user.id, is_active=True).all()
+    recurring_count = len(recurring_expenses)
+    due_count = sum(1 for re in recurring_expenses if re.is_due())
+    return render_template('main/recurring_expenses.html', recurring_expenses=recurring_expenses
+    ,recurring_count=recurring_count,due_count=due_count)
+
+@main_bp.route('/add-recurring-expense',methods=['GET','POST'])
+@login_required
+def add_recurring_expense():
+    form=RecurringExpenseForm()
+    if form.validate_on_submit():
+        recurring_expense=RecurringExpense(
+            user_id=current_user.id,
+            title=form.title.data,
+            amount=form.amount.data,
+            category_id=form.category_id.data,
+            description=form.description.data,
+            frequency=form.frequency.data,
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+            next_due_date=form.start_date.data
+        )
+        db.session.add(recurring_expense)
+        db.session.commit()
+        flash(f"Recurring Expense: {recurring_expense.title} created successfully!",category='success')
+        return redirect(url_for('main.recurring_expenses'))
+    else:
+        print(f"Form error: {form.errors}")
+    return render_template('main/add_recurring_expense.html',form=form)
+
+@main_bp.route('/edit-recurring-expense/<int:id>',methods=['GET','POST'])
+@login_required
+def edit_recurring_expense(id):
+    recurring_expense=RecurringExpense.query.filter_by(id=id,user_id=current_user.id).first_or_404()
+    form=RecurringExpenseForm(obj=recurring_expense)
+    if form.validate_on_submit():
+        recurring_expense.title = form.title.data
+        recurring_expense.amount = form.amount.data
+        recurring_expense.category_id = form.category_id.data
+        recurring_expense.description = form.description.data
+        recurring_expense.frequency = form.frequency.data
+        recurring_expense.end_date = form.end_date.data
+
+        db.session.commit()
+        flash('Reccuring expense updated successfully!',category='success')
+        return redirect(url_for('main.recurring_expenses'))
+    return render_template('main/edit_recurring_expense.html',form=form,recurring_expense=recurring_expense)
+
+
+@main_bp.route('/delete-recurring-expense/<int:id>') #soft deletion if you need hard delete use db.session.delete(recurring_expense)
+@login_required
+def delete_recurring_expense(id):
+    recurring_expense=RecurringExpense.query.filter_by(id=id,user_id=current_user.id).first_or_404()
+    recurring_expense.is_active=False
+    db.session.commit()
+    flash(f'Recurring expense "{recurring_expense.title}" deleted successfully!', 'success')
+    return redirect(url_for('main.recurring_expenses'))
+
 
