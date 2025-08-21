@@ -1,4 +1,3 @@
-
 let chartInstance = null;
 let dashboardInitialized = false;
 
@@ -7,11 +6,33 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
 });
 
+// Handle back/forward navigation - THIS IS THE KEY FIX
+window.addEventListener('pageshow', function(event) {
+    // Check if page was loaded from cache (back/forward navigation)
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log('Page loaded from cache, reinitializing dashboard...');
+        // Reset the initialization flag
+        dashboardInitialized = false;
+        // Reinitialize the dashboard
+        initializeDashboard();
+    }
+});
+
 // Cleanup chart when page is unloaded
 window.addEventListener('beforeunload', function() {
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
+    }
+    // Reset initialization flag when leaving page
+    dashboardInitialized = false;
+});
+
+// Handle visibility change (when tab becomes visible again)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && chartInstance) {
+        // Page became visible again, update the chart
+        chartInstance.update();
     }
 });
 
@@ -67,8 +88,6 @@ function updateDashboardStats(data) {
     }
 }
 
- // Global variable to store chart instance
-
 function initializeChart(categoryData) {
     const ctx = document.getElementById('expenseChart');
     
@@ -89,6 +108,10 @@ function initializeChart(categoryData) {
         chartInstance.destroy();
         chartInstance = null;
     }
+    
+    // Clear the canvas context
+    const context = ctx.getContext('2d');
+    context.clearRect(0, 0, ctx.width, ctx.height);
     
     // Prepare chart data
     const labels = [];
@@ -138,6 +161,10 @@ function initializeChart(categoryData) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 750,
+                    easing: 'easeInOutQuart'
+                },
                 plugins: {
                     legend: {
                         labels: {
@@ -229,7 +256,7 @@ function initializeChart(categoryData) {
 }
 
 function showErrorMessage(message) {
-        if (!document.getElementById('expenseChart')) {
+    if (!document.getElementById('expenseChart')) {
         return; // Not on dashboard page, don't show error
     }
     // Create or update error message element
@@ -258,3 +285,10 @@ function showErrorMessage(message) {
         </div>
     `;
 }
+
+// Additional debugging function to manually reinitialize if needed
+window.reinitializeDashboard = function() {
+    console.log('Manual dashboard reinitialization triggered');
+    dashboardInitialized = false;
+    initializeDashboard();
+};

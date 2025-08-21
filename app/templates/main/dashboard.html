@@ -89,7 +89,7 @@
         Recurring Expenses
     </a>
     {% if due_count > 0 %}
-    <a href="=/" class="bg-yellow-500 text-gray-900 px-6 py-4 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition duration-200 text-center">
+    <a href="{{url_for('main.process_due')}}" class="bg-yellow-500 text-gray-900 px-6 py-4 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition duration-200 text-center">
         Process Due ({{ due_count }})
     </a>
     {% else %}

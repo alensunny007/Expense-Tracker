@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Process Due Expenses - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold text-white sm:text-4xl">Process Due Recurring Expenses</h1>
+            <p class="mt-2 text-lg text-gray-400">Automatically processed recurring expenses due before today</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-8 space-y-4">
+                    {% for category, message in messages %}
+                        <div class="flex items-center p-4 rounded-lg shadow-md
+                                    {% if category == 'success' %} bg-green-600 text-white
+                                    {% elif category == 'error' %} bg-red-600 text-white
+                                    {% else %} bg-blue-600 text-white {% endif %}">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {% if category == 'success' %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                {% elif category == 'error' %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                {% else %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                {% endif %}
+                            </svg>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Processed Expenses Table -->
+        {% if processed_expenses %}
+            <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h2 class="text-xl font-semibold text-white">Processed Expenses</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-sm font-medium text-gray-300 uppercase tracking-wider">Title</th>
+                                <th class="px-6 py-3 text-sm font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-sm font-medium text-gray-300 uppercase tracking-wider">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            {% for expense in processed_expenses %}
+                                <tr class="hover:bg-gray-600 transition duration-150">
+                                    <td class="px-6 py-4 text-sm text-white">{{ expense.title }}</td>
+                                    <td class="px-6 py-4 text-sm text-white">₹{{ expense.amount | float | round(2) }}</td>
+                                    <td class="px-6 py-4 text-sm text-white">{{ expense.due_date }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12 bg-gray-800 rounded-xl shadow-lg">
+                <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="text-xl font-semibold text-white mb-2">No Expenses Processed</h3>
+                <p class="text-gray-400 mb-6">No recurring expenses were due for processing.</p>
+                <a href="{{ url_for('main.dashboard') }}" class="inline-block bg-lime-400 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-lime-500 transition duration-200">
+                    Return to Dashboard
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('main.recurring_expenses') }}" class="inline-block bg-lime-400 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-lime-500 transition duration-200">
+                Back to Recurring Expenses
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

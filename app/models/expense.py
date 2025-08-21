@@ -27,8 +27,16 @@ class RecurringExpense(db.Model):
     is_active=db.Column(db.Boolean,default=True)
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
 
+    last_processed_date=db.Column(db.Date)
+    total_processed=db.Column(db.Integer,default=0)
+
     user=db.relationship('User',backref=db.backref('recurring_expenses',lazy=True))
     category = db.relationship('Category', backref=db.backref('recurring_expenses', lazy=True))
+
+    @property
+    def process_due(self):
+        return(self.is_active and self.next_due_date<date.today() and self.last_processed_date is None
+                or self.last_processed_date<self.next_due_date)
 
     def calculate_next_due_date(self):
         current_due=self.next_due_date

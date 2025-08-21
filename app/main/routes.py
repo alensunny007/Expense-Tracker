@@ -127,3 +127,30 @@ def delete_recurring_expense(id):
     return redirect(url_for('main.recurring_expenses'))
 
 
+@main_bp.route('/process-due')
+@login_required
+def process_due():
+    processed_expenses=[]
+    try:
+        due_expenses=RecurringExpense.query.filter(RecurringExpense.user_id==current_user.id,RecurringExpense.process_due==True).all()
+        for expense in due_expenses:
+            new_expense=expense.create_expense_entry()
+            db.session.add(new_expense)
+            processed_expenses.append({
+            'title':expense.title,
+            'amount':float(expense.amount),
+            'due_date':expense.next_due_date.strftime('%Y-%m-%d')
+        })
+        db.session.commit()
+        if processed_expenses:
+            flash(f"Successfully processed {len(processed_expenses)} recurring expenses!",category='success')
+        else:
+            flash("No recurring expenses were due for processing.",category='info')
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error processing expenses: {str(e)}",category='danger')
+    return render_template('main/process_due.html',processed_expenses=processed_expenses)
+
+
+
+

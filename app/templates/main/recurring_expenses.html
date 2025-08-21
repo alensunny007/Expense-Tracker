@@ -15,7 +15,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
             <div>
                 {% if due_count > 0 %}
-                <a href="/" class="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition duration-200">
+                <a href="{{url_for('main.process_due')}}" class="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition duration-200">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5V3h0v14z"></path>
                     </svg>
