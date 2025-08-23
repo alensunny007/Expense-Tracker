@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,SubmitField,DateField,FloatField,SelectField
+from wtforms import StringField,SubmitField,DateField,FloatField,SelectField,BooleanField
 from wtforms.validators import DataRequired,NumberRange,Optional
 from ..models.category import Category
 from datetime import date
@@ -24,7 +24,8 @@ class RecurringExpenseForm(FlaskForm):
     frequency=SelectField('Frequency',validators=[DataRequired()],choices=[('daily','Daily'),('weekly','Weekly'),('monthly','Monthly'),('yearly','Yearly')])
     start_date=DateField('Start Date',validators=[DataRequired()],default=date.today)
     end_date=DateField('End Date(Optional)',validators=[Optional()])
-    submit=SubmitField('Creating Recurring Expense')
+    force_due=BooleanField('Force Due (for testing)',description='Check this to make the expense immediately due for processing')
+    submit=SubmitField('Create Recurring Expense')
     
     def __init__(self,*args,**kwargs):
         super(RecurringExpenseForm,self).__init__(*args,**kwargs)

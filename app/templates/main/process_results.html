@@ -1,0 +1,134 @@
+<!-- templates/main/process_results.html -->
+{% extends "base.html" %}
+
+{% block title %}Processing Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle"></i>
+                        Processing Complete
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    {% if processed_expenses %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-thumbs-up"></i>
+                            <strong>Success!</strong> {{ processed_expenses|length }} recurring expense(s) have been processed successfully.
+                        </div>
+
+                        <h5 class="mb-3">Processed Expenses:</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Expense Title</th>
+                                        <th>Amount</th>
+                                        <th>Processed Date</th>
+                                        <th>Next Due Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for expense in processed_expenses %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ expense.title }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-danger font-weight-bold">
+                                                ₹{{ "%.2f"|format(expense.amount) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">
+                                                <i class="fas fa-calendar-check"></i>
+                                                {{ expense.due_date }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-primary">
+                                                <i class="fas fa-calendar-plus"></i>
+                                                {{ expense.next_due }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Processed
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary Card -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Total Processed</h5>
+                                        <h3 class="text-success">
+                                            ₹{{ "%.2f"|format(processed_expenses|sum(attribute='amount')) }}
+                                        </h3>
+                                        <small class="text-muted">
+                                            {{ processed_expenses|length }} expense(s)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">What Happened?</h5>
+                                        <p class="mb-1">
+                                            <i class="fas fa-plus-circle text-success"></i>
+                                            Added to your expenses
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-calendar-alt text-primary"></i>
+                                            Updated next due dates
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h5>No Expenses Processed</h5>
+                            <p class="mb-0">No recurring expenses were processed during this session.</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.process_due') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-redo"></i> Process More
+                        </a>
+                        
+                        <a href="{{ url_for('main.expenses') }}" class="btn btn-success btn-lg ml-2">
+                            <i class="fas fa-list"></i> View All Expenses
+                        </a>
+                        
+                        <a href="{{ url_for('main.recurring_expenses') }}" class="btn btn-info btn-lg ml-2">
+                            <i class="fas fa-repeat"></i> Recurring Expenses
+                        </a>
+                        
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-lg ml-2">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

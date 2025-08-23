@@ -7,6 +7,7 @@ from ..models import Expense
 from ..models import Category
 from .forms import ExpenseForm,RecurringExpenseForm
 from ..models import RecurringExpense
+from datetime import date
 
 
 
@@ -88,7 +89,7 @@ def add_recurring_expense():
             frequency=form.frequency.data,
             start_date=form.start_date.data,
             end_date=form.end_date.data,
-            next_due_date=form.start_date.data
+            force_due=form.force_due.data
         )
         db.session.add(recurring_expense)
         db.session.commit()
@@ -130,27 +131,69 @@ def delete_recurring_expense(id):
 @main_bp.route('/process-due')
 @login_required
 def process_due():
+    try:
+        due_expenses=RecurringExpense.query.filter(RecurringExpense.user_id==current_user.id,RecurringExpense.is_active==True,
+                        RecurringExpense.next_due_date<=date.today()).all()
+        due_expenses=[exp for exp in due_expenses if exp.process_due]
+        if not due_expenses:
+            flash("No recurring expenses were due for processing.",category='info')
+    except Exception as e:
+        flash(f"Error fetching due expenses: {str(e)}",category='danger')
+        due_expenses=[]
+    return render_template('main/process_due.html',due_expenses=due_expenses,today=date.today())
+
+@main_bp.route('/process-selected',methods=['POST'])
+@login_required
+def process_selected():
     processed_expenses=[]
     try:
-        due_expenses=RecurringExpense.query.filter(RecurringExpense.user_id==current_user.id,RecurringExpense.process_due==True).all()
-        for expense in due_expenses:
-            new_expense=expense.create_expense_entry()
-            db.session.add(new_expense)
-            processed_expenses.append({
-            'title':expense.title,
-            'amount':float(expense.amount),
-            'due_date':expense.next_due_date.strftime('%Y-%m-%d')
-        })
+        selected_ids=request.form.getlist('selected_expenses')
+        if not selected_ids:
+            flash("No expenses selected for processing",category='warning')
+            return redirect(url_for('main.process_due'))
+        for expense_id in selected_ids:
+            expense=RecurringExpense.query.filter(RecurringExpense.id==expense_id,RecurringExpense.user_id==current_user.id).first()
+            if expense and expense.process_due:
+                new_expense=expense.create_expense_entry()
+                db.session.add(new_expense)
+                processed_expenses.append({
+                    'title': expense.title,
+                    'amount': float(expense.amount),
+                    'due_date': expense.next_due_date.strftime('%Y-%m-%d'),
+                    'next_due': expense.calculate_next_due_date().strftime('%Y-%m-%d')
+                })
+                expense.update_next_due_date()
         db.session.commit()
         if processed_expenses:
-            flash(f"Successfully processed {len(processed_expenses)} recurring expenses!",category='success')
+            flash(f"Successfully processed {len(processed_expenses)} recurring expenses!",category='sucesss')
         else:
-            flash("No recurring expenses were due for processing.",category='info')
+            flash("No valid expenses were processed",category='warning')
     except Exception as e:
         db.session.rollback()
         flash(f"Error processing expenses: {str(e)}",category='danger')
-    return render_template('main/process_due.html',processed_expenses=processed_expenses)
+    return render_template('main/process_results.html',processed_expenses=processed_expenses)
 
+@main_bp.route('/process-individual/<int:expense_id>',methods=['POST'])
+@login_required
+def process_individual(expense_id):
+    try:
+        expense=RecurringExpense.query.filter(RecurringExpense.id==expense_id,RecurringExpense.user_id==current_user.id).first()
+        if not expense:
+            flash("Recurring expense not found",category='danger')
+            return redirect(url_for('main.process_due'))
+        if not expense.process_due:
+            flash("This expense is not due for processing",category='warning')
+            return redirect(url_for('main.process_due'))
+        new_expense=expense.create_expense_entry()
+        db.session.add(new_expense)
+        old_due_date=expense.next_due_date
+        expense.update_next_due_date()
+        db.session.commit()
+        flash(f"Successfully processed '{expense.title}' - ₹{expense.amount}. Next due: {expense.next_due_date.strftime('%Y-%m-%d')}", category='success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error processing expense:{str(e)}",category='danger')
+    return redirect(url_for('main.process_due'))
 
 
 

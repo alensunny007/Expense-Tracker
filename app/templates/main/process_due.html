@@ -1,87 +1,390 @@
 {% extends "base.html" %}
-{% block title %}Process Due Expenses - Expense Tracker{% endblock %}
+
+{% block title %}Process Due Recurring Expenses{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-extrabold text-white sm:text-4xl">Process Due Recurring Expenses</h1>
-            <p class="mt-2 text-lg text-gray-400">Automatically processed recurring expenses due before today</p>
-        </div>
+<style>
+    /* Page background */
+    body {
+        background-color: #1F2937; /* gray-800 */
+        color: #e5e7eb; /* gray-200 for text contrast */
+    }
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="mb-8 space-y-4">
-                    {% for category, message in messages %}
-                        <div class="flex items-center p-4 rounded-lg shadow-md
-                                    {% if category == 'success' %} bg-green-600 text-white
-                                    {% elif category == 'error' %} bg-red-600 text-white
-                                    {% else %} bg-blue-600 text-white {% endif %}">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                {% if category == 'success' %}
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                {% elif category == 'error' %}
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                {% else %}
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                {% endif %}
-                            </svg>
-                            <span>{{ message }}</span>
+    /* Card styling */
+    .card {
+        border: none;
+        border-radius: 8px;
+        background-color: #374151; /* gray-700 for card */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+        background-color: #4b5563; /* gray-600 */
+        color: #fff;
+        border-radius: 8px 8px 0 0;
+        padding: 1.25rem;
+    }
+
+    .card-header h4 {
+        font-weight: 500;
+    }
+
+    .badge-lg {
+        font-size: 0.9rem;
+        padding: 0.4em 0.8em;
+        border-radius: 0.5rem;
+        background-color: #A3E635; /* lime-400 */
+        color: #1F2937; /* gray-800 for contrast */
+        font-weight: 500;
+    }
+
+    /* Table styling */
+    .table {
+        background-color: #374151; /* gray-700 */
+        color: #e5e7eb; /* gray-200 */
+    }
+
+    .table th {
+        background-color: #4b5563; /* gray-600 */
+        color: #fff;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        padding: 0.75rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+        border-bottom: 1px solid #4b5563; /* gray-600 */
+    }
+
+    .table tr:hover {
+        background-color: #4b5563; /* gray-600 */
+    }
+
+    .text-danger {
+        color: #f87171 !important; /* red-400 */
+    }
+
+    .text-warning {
+        color: #A3E635 !important; /* lime-400 for text highlights */
+    }
+
+    .badge-secondary, .badge-info {
+        font-size: 0.8rem;
+        padding: 0.3em 0.7em;
+        border-radius: 0.5rem;
+        background-color: #6b7280; /* gray-500 */
+        color: #fff;
+    }
+
+    /* Buttons */
+    .btn-primary, .btn-success, .btn-secondary {
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background-color: #A3E635; /* lime-400 */
+        border-color: #A3E635;
+        color: #1F2937; /* gray-800 */
+    }
+
+    .btn-primary:hover {
+        background-color: #84cc16; /* lime-500 */
+        border-color: #84cc16;
+    }
+
+    .btn-success {
+        background-color: #A3E635; /* lime-400 */
+        border-color: #A3E635;
+        color: #1F2937; /* gray-800 */
+    }
+
+    .btn-success:hover {
+        background-color: #84cc16; /* lime-500 */
+        border-color: #84cc16;
+    }
+
+    .btn-secondary {
+        background-color: #6b7280; /* gray-500 */
+        border-color: #6b7280;
+        color: #fff;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4b5563; /* gray-600 */
+        border-color: #4b5563;
+    }
+
+    /* Alert styling */
+    .alert-info {
+        background-color: #4b5563; /* gray-600 */
+        border-color: #6b7280; /* gray-500 */
+        color: #e5e7eb; /* gray-200 */
+        border-radius: 6px;
+        padding: 0.75rem;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        background-color: #374151; /* gray-700 */
+        border-radius: 8px;
+        border: none;
+    }
+
+    .modal-header {
+        background-color: #4b5563; /* gray-600 */
+        color: #fff;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .modal-body {
+        color: #e5e7eb; /* gray-200 */
+    }
+
+    .modal-footer {
+        border-top: none;
+        background-color: #374151; /* gray-700 */
+        border-radius: 0 0 8px 8px;
+    }
+
+    /* No expenses message */
+    .no-expenses {
+        background-color: #374151; /* gray-700 */
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+    }
+
+    .no-expenses i {
+        color: #A3E635; /* lime-400 */
+    }
+
+    /* Checkbox styling */
+    .form-check-input {
+        width: 1.1rem;
+        height: 1.1rem;
+        cursor: pointer;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .btn-lg {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-clock text-warning mr-2"></i>
+                        Due Recurring Expenses
+                    </h4>
+                    <span class="badge badge-lg">{{ due_expenses|length }} Due</span>
+                </div>
+                
+                <div class="card-body">
+                    {% if due_expenses %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Select the recurring expenses you want to process. Each will create a new expense entry and update to the next due date.
                         </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
 
-        <!-- Processed Expenses Table -->
-        {% if processed_expenses %}
-            <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-700">
-                    <h2 class="text-xl font-semibold text-white">Processed Expenses</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-sm font-medium text-gray-300 uppercase tracking-wider">Title</th>
-                                <th class="px-6 py-3 text-sm font-medium text-gray-300 uppercase tracking-wider">Amount</th>
-                                <th class="px-6 py-3 text-sm font-medium text-gray-300 uppercase tracking-wider">Due Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-700">
-                            {% for expense in processed_expenses %}
-                                <tr class="hover:bg-gray-600 transition duration-150">
-                                    <td class="px-6 py-4 text-sm text-white">{{ expense.title }}</td>
-                                    <td class="px-6 py-4 text-sm text-white">₹{{ expense.amount | float | round(2) }}</td>
-                                    <td class="px-6 py-4 text-sm text-white">{{ expense.due_date }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                        <form action="{{ url_for('main.process_selected') }}" method="POST" id="processForm">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th width="50">
+                                                <input type="checkbox" id="selectAll" class="form-check-input">
+                                            </th>
+                                            <th>Title</th>
+                                            <th>Amount</th>
+                                            <th>Category</th>
+                                            <th>Due Date</th>
+                                            <th>Frequency</th>
+                                            <th>Next Due After Processing</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for expense in due_expenses %}
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="selected_expenses" 
+                                                       value="{{ expense.id }}" class="form-check-input expense-checkbox">
+                                            </td>
+                                            <td>
+                                                <strong>{{ expense.title }}</strong>
+                                                {% if expense.description %}
+                                                    <br><small class="text-muted">{{ expense.description }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="text-danger font-weight-bold">₹{{ "%.2f"|format(expense.amount) }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-secondary">{{ expense.category.name }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-warning">
+                                                    <i class="fas fa-calendar-alt mr-1"></i>
+                                                    {{ expense.next_due_date.strftime('%d %b %Y') }}
+                                                </span>
+                                                {% if expense.next_due_date < today %}
+                                                    <br><small class="text-danger">Overdue</small>
+                                                {% elif expense.next_due_date == today %}
+                                                    <br><small class="text-warning">Due Today</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-info text-capitalize">{{ expense.frequency }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">
+                                                    {{ expense.calculate_next_due_date().strftime('%d %b %Y') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-success process-individual" 
+                                                        data-id="{{ expense.id }}" data-title="{{ expense.title }}" 
+                                                        data-amount="{{ expense.amount }}">
+                                                    <i class="fas fa-check mr-1"></i> Process Now
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary btn-lg" id="processSelectedBtn" disabled>
+                                    <i class="fas fa-play-circle mr-2"></i> Process Selected (<span id="selectedCount">0</span>)
+                                </button>
+                                
+                                <a href="{{ url_for('main.recurring_expenses') }}" class="btn btn-secondary btn-lg ml-2">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back to Recurring Expenses
+                                </a>
+                            </div>
+                        </form>
+
+                    {% else %}
+                        <div class="no-expenses text-center py-5">
+                            <i class="fas fa-check-circle" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3">No Expenses Due</h4>
+                            <p class="text-muted">All your recurring expenses are up to date!</p>
+                            <a href="{{ url_for('main.recurring_expenses') }}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to Recurring Expenses
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-        {% else %}
-            <!-- Empty State -->
-            <div class="text-center py-12 bg-gray-800 rounded-xl shadow-lg">
-                <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h3 class="text-xl font-semibold text-white mb-2">No Expenses Processed</h3>
-                <p class="text-gray-400 mb-6">No recurring expenses were due for processing.</p>
-                <a href="{{ url_for('main.dashboard') }}" class="inline-block bg-lime-400 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-lime-500 transition duration-200">
-                    Return to Dashboard
-                </a>
-            </div>
-        {% endif %}
-
-        <!-- Back Button -->
-        <div class="mt-8 text-center">
-            <a href="{{ url_for('main.recurring_expenses') }}" class="inline-block bg-lime-400 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-lime-500 transition duration-200">
-                Back to Recurring Expenses
-            </a>
         </div>
     </div>
 </div>
+
+<!-- Confirmation Modal for Individual Processing -->
+<div class="modal fade" id="confirmProcessModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Processing</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to process this recurring expense?</p>
+                <div class="alert alert-info">
+                    <strong>Title:</strong> <span id="modalTitle"></span><br>
+                    <strong>Amount:</strong> ₹<span id="modalAmount"></span><br>
+                    <strong>Action:</strong> This will create a new expense entry and update the next due date.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form method="POST" id="individualProcessForm" style="display: inline;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check mr-1"></i> Yes, Process It
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const expenseCheckboxes = document.querySelectorAll('.expense-checkbox');
+    const processSelectedBtn = document.getElementById('processSelectedBtn');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const processForm = document.getElementById('processForm');
+
+    // Select/Deselect All functionality
+    selectAllCheckbox.addEventListener('change', function() {
+        expenseCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateSelectedCount();
+    });
+
+    // Update count when individual checkboxes change
+    expenseCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+
+    function updateSelectedCount() {
+        const selectedCount = document.querySelectorAll('.expense-checkbox:checked').length;
+        selectedCountSpan.textContent = selectedCount;
+        processSelectedBtn.disabled = selectedCount === 0;
+        
+        // Update "Select All" checkbox state
+        const totalCheckboxes = expenseCheckboxes.length;
+        selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
+        selectAllCheckbox.checked = selectedCount === totalCheckboxes;
+    }
+
+    // Confirmation for bulk processing
+    processForm.addEventListener('submit', function(e) {
+        const selectedCount = document.querySelectorAll('.expense-checkbox:checked').length;
+        if (!confirm(`Are you sure you want to process ${selectedCount} recurring expense(s)? This will create new expense entries and update their next due dates.`)) {
+            e.preventDefault();
+        }
+    });
+
+    // Individual processing confirmation
+    document.querySelectorAll('.process-individual').forEach(button => {
+        button.addEventListener('click', function() {
+            const expenseId = this.dataset.id;
+            const title = this.dataset.title;
+            const amount = this.dataset.amount;
+            
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalAmount').textContent = parseFloat(amount).toFixed(2);
+            const baseUrl="{{url_for('main.process_individual',expense_id=0)}}";
+            document.getElementById('individualProcessForm').action = baseUrl + expenseId;
+            
+            $('#confirmProcessModal').modal('show');
+        });
+    });
+});
+</script>
 {% endblock %}

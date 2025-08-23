@@ -33,12 +33,15 @@ class RecurringExpense(db.Model):
     user=db.relationship('User',backref=db.backref('recurring_expenses',lazy=True))
     category = db.relationship('Category', backref=db.backref('recurring_expenses', lazy=True))
 
-    def __init__(self,**kwargs):
+    def __init__(self,force_due=False,**kwargs):
         super(RecurringExpense,self).__init__(**kwargs)
         #automatically set next due date based on start date  and frequency
         if self.start_date and self.frequency and not self.next_due_date:
-            self.next_due_date=self.calculate_next_due_date()
-    def caluculate_initial_next_due_date(self):
+            if force_due:
+                self.next_due_date=self.start_date
+            else:
+                self.next_due_date=self.calculate_initial_next_due_date()
+    def calculate_initial_next_due_date(self):
         #caluculate the initial next due date only when a new recurr expense is created and also identify next due date  logically with 
         #current date, if a user add a old recurr expense whom next due date is already past from current date there is no point of adding them
         #so set next due date after or on current day based on frequency
@@ -47,11 +50,31 @@ class RecurringExpense(db.Model):
         #if start date is in the future next due date is start date
         if start>today:
             return start
+        if self.frequency=='daily':
+            days_diff=(today-start).days
+            return start+timedelta(days=days_diff+1)
+        elif self.frequency=='weekly':
+            weeks_diff=(today-start).days//7
+            next_date=start+timedelta(weeks=weeks_diff)
+            if next_date<=today:
+                next_date=start+timedelta(weeks=weeks_diff+1)
+            return next_date
+        elif self.frequency=='monthly':
+            next_date=start
+            while next_date<=today:
+                next_date=next_date+relativedelta(months=1)
+            return next_date
+        elif self.frequency=='yearly':
+            next_date=start
+            while next_date<=today:
+                next_date=next_date+relativedelta(years=1)
+            return next_date
+        return start
 
     @property
     def process_due(self):
-        return(self.is_active and self.next_due_date<date.today() and self.last_processed_date is None
-                or self.last_processed_date<self.next_due_date)
+        return(self.is_active and self.next_due_date<=date.today() and (self.last_processed_date is None
+                or self.last_processed_date<self.next_due_date))
 
     def calculate_next_due_date(self):
         current_due=self.next_due_date
