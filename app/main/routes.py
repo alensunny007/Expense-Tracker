@@ -134,7 +134,6 @@ def process_due():
     try:
         due_expenses=RecurringExpense.query.filter(RecurringExpense.user_id==current_user.id,RecurringExpense.is_active==True,
                         RecurringExpense.next_due_date<=date.today()).all()
-        due_expenses=[exp for exp in due_expenses if exp.process_due]
         if not due_expenses:
             flash("No recurring expenses were due for processing.",category='info')
     except Exception as e:

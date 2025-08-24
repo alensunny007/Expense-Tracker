@@ -94,7 +94,9 @@ class RecurringExpense(db.Model):
         return expense
     
     def update_next_due_date(self):
+        self.last_processed_date=self.next_due_date
         self.next_due_date=self.calculate_next_due_date()
+        self.total_processed=(self.total_processed or 0)+1
     
     def is_due(self):
         return self.is_active and self.next_due_date<=date.today()

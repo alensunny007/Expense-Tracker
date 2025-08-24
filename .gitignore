@@ -5,3 +5,4 @@ instance/
 *.db
 migrations/
 venv/
+credential.json
