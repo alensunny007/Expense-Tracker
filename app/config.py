@@ -14,6 +14,8 @@ class Config:
     MAIL_USE_TLS=os.getenv('MAIL_USE_TLS')
     MAIL_USERNAME=os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD=os.getenv('MAIL_PASSWORD')
+    GOOGLE_CLIENT_ID=os.getenv('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET=os.getenv('GOOGLE_CLIENT_SECRET')
     
 class DevelopmentConfig(Config):
     DEBUG=True

@@ -1,10 +1,41 @@
-from flask import render_template,redirect,url_for,flash,request,current_app
+from flask import render_template,redirect,url_for,flash,current_app,session
 from flask_login import login_user,logout_user,login_required
 from ..models.user import User
 from ..extensions import db
 from . import auth_bp
 from .forms import LoginForm,RegisterForm,ForgotPasswordForm,ResetPasswordForm
 from ..utils import generate_reset_token,verify_reset_token,send_reset_email
+import os
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+
+@auth_bp.route('/google/callback')
+def google_callback():
+    SCOPES=['https://www.googleapis.com/auth/gmail.send']
+    refresh_token=os.getenv('GOOGLE_REFRESH_TOKEN')
+    if not refresh_token:
+        return redirect(url_for('auth.login'))
+    try:
+        credentials = Credentials(
+        None,
+        refresh_token=refresh_token,
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=SCOPES
+    )
+        request=Request()
+        credentials.refresh(request)
+        session['credentials'] = {
+            'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'scopes': credentials.scopes
+        }
+        flash('Successfully connected to google gmail api',category='success')
+        return redirect(url_for('main.dashboard'))
+    except Exception as e:
+        flash(f'Failed to refresh Google token: {str(e)}. Check your .env file or re-run the refresh token script.', 'danger')
+        return redirect(url_for('auth.login'))
 
 @auth_bp.route('/login',methods=['GET','POST'])
 def login():

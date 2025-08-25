@@ -6,3 +6,4 @@ instance/
 migrations/
 venv/
 credential.json
+check_env.py

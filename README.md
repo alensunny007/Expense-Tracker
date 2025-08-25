@@ -14,14 +14,14 @@ for cat_name in categories:
 
 db.session.commit()
 
-for password feature set the variable inside your .env file:
+for password reset feature set the variable inside your .env file:
     MAIL_SERVER=smtp.gmail.com
     MAIL_PORT=587
     MAIL_USE_TLS=True
-    MAIL_USERNAME=<username>
-    MAIL_PASSWORD=<your generated password>
-    MAIL_DEFAULT_SENDER=<youremailid>
-    SECURITY_PASSWORD_SALT=<your security password generated>
+    MAIL_USERNAME
+    MAIL_PASSWORD
+    MAIL_DEFAULT_SENDER
+    SECURITY_PASSWORD_SALT
 
 Generates a 16-byte hex salt string Using Python one-liner:
     python -c "import secrets; print(secrets.token_hex(16))"
