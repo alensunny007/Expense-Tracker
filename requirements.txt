@@ -5,6 +5,8 @@ certifi==2025.8.3
 charset-normalizer==3.4.3
 click==8.2.1
 colorama==0.4.6
+dnspython==2.7.0
+email-validator==2.3.0
 Flask==2.3.3
 Flask-Login==0.6.3
 Flask-Mail==0.10.0
