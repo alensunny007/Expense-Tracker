@@ -1,4 +1,5 @@
 alembic==1.16.4
+APScheduler==3.11.0
 blinker==1.9.0
 cachetools==5.5.2
 certifi==2025.8.3
@@ -41,6 +42,8 @@ rsa==4.9.1
 six==1.17.0
 SQLAlchemy==2.0.41
 typing_extensions==4.14.1
+tzdata==2025.2
+tzlocal==5.3.1
 uritemplate==4.2.0
 urllib3==2.5.0
 Werkzeug==3.1.3
