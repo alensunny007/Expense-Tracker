@@ -195,4 +195,21 @@ def process_individual(expense_id):
     return redirect(url_for('main.process_due'))
 
 
+@main_bp.route('/expenses/search')
+@login_required
+def search_expenses():
+    keyword = request.args.get('q', '').strip()
+    query = Expense.query.filter_by(user_id=current_user.id)
+    if keyword:
+        query = query.filter(Expense.description.ilike(f'%{keyword}%'))
+    expenses = query.order_by(Expense.date.desc()).all()
+    res = []
+    for exp in expenses:
+        res.append({
+            'amount': float(exp.amount),
+            'description': exp.description,
+            'date': exp.date.strftime('%Y-%m-%d'),
+            'category': exp.category.name if exp.category else ''
+        })
+    return jsonify(res)
 
