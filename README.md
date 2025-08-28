@@ -34,10 +34,11 @@ for gmail notification set these env variables:
 Generates a 16-byte hex salt string Using Python one-liner:
     python -c "import secrets; print(secrets.token_hex(16))"
 
- Some Screenshots of Expense Tracker:
     
-    Gmail Notification
-    (app/static/images/Gmail.jpg)
+## Features
 
-    Password Reset
-    (app/static/images/Passreset.jpg)
+### Gmail Notification
+![Gmail Notification](app/static/images/Gmail.jpg)
+
+### Password Reset
+![Password Reset](app/static/images/Passreset.jpg)
