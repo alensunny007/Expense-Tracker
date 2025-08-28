@@ -253,8 +253,8 @@ class DueExpenseMonitor:
             self.scheduler.add_job(
                 self.check_newly_due_expenses,
                 'cron',
-                hour=9,
-                minute=0,
+                hour=11,
+                minute=15,
                 id='morning_due_notification',
                 replace_existing=True
             )
