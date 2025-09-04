@@ -22,7 +22,7 @@ def dashboard():
     recurring_count = len(recurring_expenses)
     due_count = sum(1 for re in recurring_expenses if re.is_due())
     
-    return render_template('main/dashboard.html',recurring_count=recurring_count,due_count=due_count)
+    return render_template('main/dashboard.html',recurring_count=recurring_count,due_count=due_count,show_navbar=True)
 
 @main_bp.route('/api/dashboard-data',methods=['GET','POST']) 
 @login_required
@@ -51,7 +51,7 @@ def dashboard_data():
 @login_required
 def expense_list():
     expenses=Expense.query.filter_by(user_id=current_user.id).all()
-    return render_template('main/expense_list.html',expenses=expenses)
+    return render_template('main/expense_list.html',expenses=expenses,show_navbar=False)
 
 @main_bp.route('/expense/new',methods=['GET','POST'])
 @login_required
@@ -64,7 +64,7 @@ def expense_create():
         db.session.commit()
         flash("Expense added successfully!",category='success')
         return redirect(url_for('main.expense_list'))
-    return render_template('main/expense_create.html',form=form)
+    return render_template('main/expense_create.html',form=form,show_navbar=False)
 
 @main_bp.route('/recurring-expenses')
 @login_required
@@ -73,7 +73,7 @@ def recurring_expenses():
     recurring_count = len(recurring_expenses)
     due_count = sum(1 for re in recurring_expenses if re.is_due())
     return render_template('main/recurring_expenses.html', recurring_expenses=recurring_expenses
-    ,recurring_count=recurring_count,due_count=due_count)
+    ,recurring_count=recurring_count,due_count=due_count,show_navbar=False)
 
 @main_bp.route('/add-recurring-expense',methods=['GET','POST'])
 @login_required
@@ -97,7 +97,7 @@ def add_recurring_expense():
         return redirect(url_for('main.recurring_expenses'))
     else:
         print(f"Form error: {form.errors}")
-    return render_template('main/add_recurring_expense.html',form=form)
+    return render_template('main/add_recurring_expense.html',form=form,show_navbar=False)
 
 @main_bp.route('/edit-recurring-expense/<int:id>',methods=['GET','POST'])
 @login_required
@@ -115,7 +115,7 @@ def edit_recurring_expense(id):
         db.session.commit()
         flash('Reccuring expense updated successfully!',category='success')
         return redirect(url_for('main.recurring_expenses'))
-    return render_template('main/edit_recurring_expense.html',form=form,recurring_expense=recurring_expense)
+    return render_template('main/edit_recurring_expense.html',form=form,recurring_expense=recurring_expense,show_navbar=False)
 
 
 @main_bp.route('/delete-recurring-expense/<int:id>') #soft deletion if you need hard delete use db.session.delete(recurring_expense)
@@ -139,7 +139,7 @@ def process_due():
     except Exception as e:
         flash(f"Error fetching due expenses: {str(e)}",category='danger')
         due_expenses=[]
-    return render_template('main/process_due.html',due_expenses=due_expenses,today=date.today())
+    return render_template('main/process_due.html',due_expenses=due_expenses,today=date.today(),show_navbar=False)
 
 @main_bp.route('/process-selected',methods=['POST'])
 @login_required
@@ -170,7 +170,7 @@ def process_selected():
     except Exception as e:
         db.session.rollback()
         flash(f"Error processing expenses: {str(e)}",category='danger')
-    return render_template('main/process_results.html',processed_expenses=processed_expenses)
+    return render_template('main/process_results.html',processed_expenses=processed_expenses,show_navbar=False)
 
 @main_bp.route('/process-individual/<int:expense_id>',methods=['POST'])
 @login_required

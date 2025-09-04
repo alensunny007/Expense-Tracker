@@ -42,3 +42,7 @@ Generates a 16-byte hex salt string Using Python one-liner:
 
 ### Password Reset
 ![Password Reset](app/static/images/Passreset.jpg)
+
+
+ Test your Flask app on mobile locally by accessing it from your phone:
+    flask run --host=0.0.0.0 --port=5000

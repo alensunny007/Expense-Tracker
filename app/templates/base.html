@@ -9,7 +9,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body class="bg-gray-800">
-    {% include 'partials/navbar.html' %}
+    {% if show_navbar %}
+        {% include 'partials/navbar.html' %}
+    {% endif %}
     <div class="container mx-auto p-4">
         {% include 'partials/flash_messages.html' %}
         {% block content %}{% endblock %}

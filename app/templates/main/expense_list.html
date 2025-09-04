@@ -13,7 +13,19 @@
             <span id="loading-spinner" class="hidden absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400">⏳</span>
             <button id="clear-search" class="bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-500 transition duration-200">Clear</button>
         </div>
-        <div class="mt-8 bg-gray-700 shadow-lg rounded-lg p-8 border border-gray-600">
+         <div class="space-y-4 md:hidden mt-8">
+            {% for expense in expenses %}
+            <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                <div class="flex justify-between">
+                    <span class="text-lime-400 font-semibold text-lg">₹{{ expense.amount|round(2) }}</span>
+                    <span class="text-gray-300 text-sm">{{ expense.category.name if expense.category else '' }}</span>
+                </div>
+                <div class="text-white mt-1 truncate">{{ expense.description }}</div>
+                <div class="text-sm text-gray-300 mt-1">{{ expense.date.strftime('%Y-%m-%d') }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="hidden md:block mt-8 overflow-x-auto bg-gray-700 shadow-lg rounded-lg p-8 border border-gray-600">
             <table class="min-w-full divide-y divide-gray-600">
                 <thead>
                     <tr>
@@ -37,6 +49,7 @@
         </div>
     </div>
 </div>
+
 <script>
 function debounce(func, delay) {
     let timer;
