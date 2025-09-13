@@ -46,3 +46,5 @@ Generates a 16-byte hex salt string Using Python one-liner:
 
  Test your Flask app on mobile locally by accessing it from your phone:
     flask run --host=0.0.0.0 --port=5000
+
+[ View Sample Expense Report PDF](app/static/images/expense_report_sample.pdf)
