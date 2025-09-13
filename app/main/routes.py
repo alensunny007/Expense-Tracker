@@ -1,4 +1,4 @@
-from flask import render_template,redirect,request,url_for,flash,jsonify
+from flask import render_template,redirect,request,url_for,flash,jsonify,make_response
 from flask_login import login_required,current_user
 from ..extensions import db
 from . import main_bp
@@ -7,8 +7,9 @@ from ..models import Expense
 from ..models import Category
 from .forms import ExpenseForm,RecurringExpenseForm
 from ..models import RecurringExpense
-from datetime import date
-
+from datetime import date,datetime
+from weasyprint import HTML,CSS
+from io import BytesIO
 
 
 @main_bp.route('/')
@@ -213,3 +214,68 @@ def search_expenses():
         })
     return jsonify(res)
 
+@main_bp.route('/export-pdf')
+@login_required
+def export_expense_pdf():
+    start_date=request.args.get('start_date')
+    end_date=request.args.get('end_date')
+    category=request.args.get('category','all')
+    if not start_date:
+        start_date=datetime.now().replace(day=1).strftime('%Y-%m-%d')
+    if not end_date:
+        end_date=datetime.now().strftime('%Y-%m-%d')
+    query=Expense.query.options(db.joinedload(Expense.category)).filter(Expense.user_id==current_user.id)
+    query=query.filter(Expense.date>=start_date)
+    query=query.filter(Expense.date<=end_date)
+    if category!='all':
+        query=query.filter(Expense.category_id==category)
+    expenses=query.order_by(Expense.date.desc()).all()
+    total_amount=sum(expense.amount for expense in expenses)
+    category_totals={}
+    for expense in expenses:
+        category_name=expense.category.name
+        if category_name in category_totals:
+            category_totals[category_name]+=expense.amount
+        else:
+            category_totals[category_name]=expense.amount
+    html_content = render_template('main/expense_report.html',expenses=expenses,total_amount=total_amount,
+    category_totals=category_totals,start_date=start_date,end_date=end_date,current_user=current_user,generated_date=datetime.now())
+    pdf_file=BytesIO()
+    HTML(string=html_content).write_pdf(pdf_file)
+    pdf_file.seek(0)
+
+    response=make_response(pdf_file.getvalue())
+    response.headers['Content-Type']='application/pdf'
+    response.headers['Content-Disposition']=f'attachment; filename=expense_report_{start_date}_{end_date}.pdf'
+    return response
+
+@main_bp.route('/preview-report')
+@login_required
+def preview_report():
+    start_date=request.args.get('start_date')
+    end_date=request.args.get('end_date')
+    category=request.args.get('category','all')
+    if not start_date:
+        start_date = datetime.now().replace(day=1).strftime('%Y-%m-%d')
+    if not end_date:
+        end_date = datetime.now().strftime('%Y-%m-%d')
+    
+    query = Expense.query.filter(Expense.user_id == current_user.id)
+    query = query.filter(Expense.date >= start_date)
+    query = query.filter(Expense.date <= end_date)
+    
+    if category != 'all':
+        query = query.filter(Expense.category == category)
+    
+    expenses = query.order_by(Expense.date.desc()).all()
+    total_amount = sum(expense.amount for expense in expenses)
+    
+    category_totals = {}
+    for expense in expenses:
+        if expense.category in category_totals:
+            category_totals[expense.category] += expense.amount
+        else:
+            category_totals[expense.category] = expense.amount
+    
+    return render_template('main/expense_report.html',expenses=expenses,total_amount=total_amount,category_totals=category_totals,
+    start_date=start_date,end_date=end_date, current_user=current_user,generated_date=datetime.now(),is_preview=True)

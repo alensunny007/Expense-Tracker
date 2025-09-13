@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Report</title>
+    <style>
+        /* PDF-specific styles */
+        @page {
+            size: A4;
+            margin: 1in;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #84cc16;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #84cc16;
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .report-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .summary-section {
+            margin-bottom: 30px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .category-breakdown {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .total-summary {
+            background-color: #84cc16;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .total-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .expenses-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        
+        .expenses-table th {
+            background-color: #84cc16;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .expenses-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .expenses-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .amount {
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .category-tag {
+            background-color: #e5e7eb;
+            color: #374151;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: capitalize;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .no-expenses {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Preview mode styles */
+        /* These styles will be conditionally included below */
+    </style>
+    {% if is_preview %}
+    <style>
+        .preview-banner {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .preview-actions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+    {% endif %}
+</head>
+<body>
+    {% if is_preview %}
+    <div class="preview-banner">
+        📄 Report Preview - Click "Download PDF" to save
+    </div>
+    <div class="preview-actions">
+        <a href="{{ url_for('main.export_expense_pdf', start_date=start_date, end_date=end_date, category=request.args.get('category', 'all')) }}" 
+           class="btn btn-primary" download>Download PDF</a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    {% endif %}
+
+    <div class="header">
+        <h1>💰 Expense Report</h1>
+        <div class="subtitle">Personal Financial Summary</div>
+        <div class="subtitle">{{ current_user.username }} ({{ current_user.email }})</div>
+    </div>
+
+    <div class="report-info">
+        <div>
+            <div class="info-item">
+                <span class="info-label">Report Period:</span>
+                <span>{{ start_date }} to {{ end_date }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Transactions:</span>
+                <span>{{ expenses|length }}</span>
+            </div>
+        </div>
+        <div>
+            <div class="info-item">
+                <span class="info-label">Generated:</span>
+                <span>{{ generated_date.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Currency:</span>
+                <span>INR (₹)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="summary-section">
+        <h2>📊 Summary</h2>
+        <div class="summary-grid">
+            <div class="category-breakdown">
+                <h3>Expenses by Category</h3>
+                {% if category_totals %}
+                    {% for category, amount in category_totals.items() %}
+                    <div class="category-item">
+                        <span class="category-tag">{{ category }}</span>
+                        <span class="amount">₹{{ "%.2f"|format(amount) }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No expenses found for this period.</p>
+                {% endif %}
+            </div>
+            
+            <div class="total-summary">
+                <h3>Total Spent</h3>
+                <div class="total-amount">₹{{ "%.2f"|format(total_amount) }}</div>
+                <p>{{ expenses|length }} transactions</p>
+            </div>
+        </div>
+    </div>
+
+    {% if expenses %}
+    <div class="expenses-section">
+        <h2>📋 Detailed Transactions</h2>
+        <table class="expenses-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ expense.description or 'No description' }}</td>
+                    <td>
+                        <span class="category-tag">{{ expense.category.name }}</span>
+                    </td>
+                    <td class="amount">₹{{ "%.2f"|format(expense.amount) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-expenses">
+        <h3>No expenses found</h3>
+        <p>No transactions were recorded for the selected period and filters.</p>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>Generated by Expense Tracker App | {{ generated_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <p>This report contains {{ expenses|length }} transactions totaling ₹{{ "%.2f"|format(total_amount) }}</p>
+    </div>
+</body>
+</html>
