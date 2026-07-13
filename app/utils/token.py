@@ -15,13 +15,14 @@ def verify_reset_token(token,expire=3600):
     except Exception as e:
         current_app.logger.error(f"{e}")
         return None
+#contains the content for email 
 def send_reset_email(email,reset_url):
     msg = Message(
         subject='Password Reset Request',
         recipients=[email],
         html=f'''
         <h2>Password Reset Request</h2>
-        <p>Looks like you are having some difficulty logging into your Expense Tracker Account. Please click the link below to reset it:</p>
+        <p>Looks like you are having some difficulty logging into your Alen's Expense Tracker Account. Please click the link below to reset it:</p>
         <p><a href="{reset_url}">Reset Password</a></p>
         <p>If you did not request this, please ignore this email.</p>
         <p>This link will expire in 1 hour.</p>

@@ -6,89 +6,89 @@ from . import auth_bp
 from .forms import LoginForm,RegisterForm,ForgotPasswordForm,ResetPasswordForm
 from ..utils import generate_reset_token,verify_reset_token,send_reset_email
 import os
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import Flow
+# from google.oauth2.credentials import Credentials
+# from google.auth.transport.requests import Request
+# from google_auth_oauthlib.flow import Flow
 
-@auth_bp.route('/setup-gmail')
-def setup_gmail():
-    #redirect user to google oauth for gmail permission
-    SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": os.getenv('GOOGLE_CLIENT_ID'),
-                "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": ["http://localhost:5000/auth/gmail-token"]
-            }
-        },
-        scopes=SCOPES
-    )
-    flow.redirect_uri='http://localhost:5000/auth/gmail-token'
-    #generate auth url
-    authorization_url,state=flow.authorization_url(access_type='offline',prompt='consent')
+# @auth_bp.route('/setup-gmail')
+# def setup_gmail():
+#     #redirect user to google oauth for gmail permission
+#     SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+#     flow = Flow.from_client_config(
+#         {
+#             "web": {
+#                 "client_id": os.getenv('GOOGLE_CLIENT_ID'),
+#                 "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
+#                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+#                 "token_uri": "https://oauth2.googleapis.com/token",
+#                 "redirect_uris": ["http://localhost:5000/auth/gmail-token"]
+#             }
+#         },
+#         scopes=SCOPES
+#     )
+#     flow.redirect_uri='http://localhost:5000/auth/gmail-token'
+#     #generate auth url
+#     authorization_url,state=flow.authorization_url(access_type='offline',prompt='consent')
 
-    session['oauth_state']=state
-    return redirect(authorization_url)
-@auth_bp.route('/gmail-token')
-def gmail_token():
-    #handle oauth callback and extract refresh token
-    SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-    if request.args.get('state') != session.get('oauth_state'):
-        flash('Invalid Oauth state',category='danger')
-        return redirect(url_for('main.dashboard'))
-    if not request.args.get('code'):
-        flash("Auth failed no code received",category='danger')
-        return redirect(url_for('main.dashboard'))
-    try:
-        flow = Flow.from_client_config(
-            {
-                "web": {
-                    "client_id": os.getenv('GOOGLE_CLIENT_ID'),
-                    "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
-                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                    "token_uri": "https://oauth2.googleapis.com/token",
-                    "redirect_uris": ["http://localhost:5000/auth/gmail-token"]
-                }
-            },
-            scopes=SCOPES,
-            state=session['oauth_state']
-        )
-        flow.redirect_uri = 'http://localhost:5000/auth/gmail-token'
+#     session['oauth_state']=state
+#     return redirect(authorization_url)
+# @auth_bp.route('/gmail-token')
+# def gmail_token():
+#     #handle oauth callback and extract refresh token
+#     SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+#     if request.args.get('state') != session.get('oauth_state'):
+#         flash('Invalid Oauth state',category='danger')
+#         return redirect(url_for('main.dashboard'))
+#     if not request.args.get('code'):
+#         flash("Auth failed no code received",category='danger')
+#         return redirect(url_for('main.dashboard'))
+#     try:
+#         flow = Flow.from_client_config(
+#             {
+#                 "web": {
+#                     "client_id": os.getenv('GOOGLE_CLIENT_ID'),
+#                     "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
+#                     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+#                     "token_uri": "https://oauth2.googleapis.com/token",
+#                     "redirect_uris": ["http://localhost:5000/auth/gmail-token"]
+#                 }
+#             },
+#             scopes=SCOPES,
+#             state=session['oauth_state']
+#         )
+#         flow.redirect_uri = 'http://localhost:5000/auth/gmail-token'
         
-        # Exchange authorization code for tokens
-        flow.fetch_token(authorization_response=request.url)
+#         # Exchange authorization code for tokens
+#         flow.fetch_token(authorization_response=request.url)
         
-        credentials = flow.credentials
-        refresh_token = credentials.refresh_token
+#         credentials = flow.credentials
+#         refresh_token = credentials.refresh_token
         
-        if not refresh_token:
-            flash(' No refresh token received. You may need to revoke app access in Google Account settings and try again.', 'danger')
-            return redirect(url_for('main.dashboard'))
+#         if not refresh_token:
+#             flash(' No refresh token received. You may need to revoke app access in Google Account settings and try again.', 'danger')
+#             return redirect(url_for('main.dashboard'))
         
-        # Clean up session
-        session.pop('oauth_state', None)
+#         # Clean up session
+#         session.pop('oauth_state', None)
         
-        # Show success message with the refresh token
-        flash(' Gmail API setup successful!', 'success')
-        flash(f' Copy this refresh token to your .env file:', 'info')
-        flash(f'GOOGLE_REFRESH_TOKEN={refresh_token}', 'warning')
+#         # Show success message with the refresh token
+#         flash(' Gmail API setup successful!', 'success')
+#         flash(f' Copy this refresh token to your .env file:', 'info')
+#         flash(f'GOOGLE_REFRESH_TOKEN={refresh_token}', 'warning')
         
-        # Optional: Log it to console as well
-        print("=" * 60)
-        print(" GMAIL API REFRESH TOKEN GENERATED!")
-        print("=" * 60)
-        print(f"Add this line to your .env file:")
-        print(f"GOOGLE_REFRESH_TOKEN={refresh_token}")
-        print("=" * 60)
+#         # Optional: Log it to console as well
+#         print("=" * 60)
+#         print(" GMAIL API REFRESH TOKEN GENERATED!")
+#         print("=" * 60)
+#         print(f"Add this line to your .env file:")
+#         print(f"GOOGLE_REFRESH_TOKEN={refresh_token}")
+#         print("=" * 60)
         
-        return redirect(url_for('main.dashboard'))
+#         return redirect(url_for('main.dashboard'))
         
-    except Exception as e:
-        flash(f' Error getting refresh token: {str(e)}', 'danger')
-        return redirect(url_for('main.dashboard'))
+#     except Exception as e:
+#         flash(f' Error getting refresh token: {str(e)}', 'danger')
+#         return redirect(url_for('main.dashboard'))
 
 @auth_bp.route('/login',methods=['GET','POST'])
 def login():
