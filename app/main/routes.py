@@ -132,14 +132,19 @@ def delete_recurring_expense(id):
 @main_bp.route('/process-due')
 @login_required
 def process_due():
+    due_expenses=[]
+    all_expenses=RecurringExpense.query.filter().all() #querying all recurring expense
+    #optimal one is querying only valid rows using sqlalchemy
+    #due_expenses=RecurringExpense.query.filter(RecurringExpense.user_id == current_user.id,RecurringExpense.is_active,RecurringExpense.next_due_date <= date.today()).all()
     try:
-        due_expenses=RecurringExpense.query.filter(RecurringExpense.user_id==current_user.id,RecurringExpense.is_active==True,
-                        RecurringExpense.next_due_date<=date.today()).all()
+        for expense in all_expenses:
+            if expense.user_id==current_user.id and expense.is_active and expense.next_due_date<=date.today():
+                due_expenses.append(expense)
+        #no such expense found
         if not due_expenses:
             flash("No recurring expenses were due for processing.",category='info')
     except Exception as e:
         flash(f"Error fetching due expenses: {str(e)}",category='danger')
-        due_expenses=[]
     return render_template('main/process_due.html',due_expenses=due_expenses,today=date.today(),show_navbar=False)
 
 @main_bp.route('/process-selected',methods=['POST'])
